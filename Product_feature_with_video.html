@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Feature with video</title>
+    <link rel="icon" href="./Assets/AssetLibrary.ico" type="x-icon">
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            appearance: 0;
+        }
+        html{
+            font: 1.5rem "Nunito", sans-serif;
+            scroll-behavior: smooth;
+        }
+        img{
+            display: block;
+        }
+        .nowrap{
+            white-space: nowrap;
+        }
+        body{
+            display: grid;
+            place-content: center;
+            min-height: 100vh;
+            background-color:#36024b ;
+        }
+        .container{
+            border-radius: .3em;
+            min-height: 80vh;
+            width: 1200px;
+            background-color: #36024b;
+            box-shadow: 0 0 20px 1px #000;
+            color: #f5f5f5;
+            padding: 0.6rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        .words{
+            display: flex;
+            flex-flow: column nowrap;
+            padding: 1rem;
+        }
+        .resources{
+            display: flex;
+            gap: 3rem;
+            padding: 1rem 0;
+        }
+        .video{
+            display: flex;
+            align-items: center;
+            outline: none;
+        }
+        .video-item{
+            border-radius: .2em;
+            object-fit: cover;
+        }
+        .video-item:focus{
+            outline: 0;
+        }
+        .book-img{
+            width: 50px;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+        }
+        .book-img:hover{
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <div class="words">
+            <h1>The End Times</h1>
+            <p>The end times are coming pretty fast.
+                Daniel's predictions in the old testament 
+                will soon become real. Where will you be?
+                Get your books for encouragement today!
+            </p>
+            <div class="resources">
+                <div class="resource">
+                    <img class="book-img" src="./Assets/book.svg" alt="book">
+                    <p>The Great Controversy (<span class="nowrap">Ellen G. White</span>)</p>
+                </div>
+                <div class="resource">
+                    <img class="book-img" src="./Assets/book.svg" alt="book">
+                    <p>The Great Hope (<span class="nowrap">Ellen G. White</span>)</p>
+                </div>
+            </div>
+        </div>
+        <div class="video">
+            <video class="video-item" src="./Assets/People Will See Him and Still Love Him (The Shocking Truth About The Beast System).mp4" controls="controls" height="400px" width="600px"></video>
+        </div>
+    </div>
+</body>
+</html>

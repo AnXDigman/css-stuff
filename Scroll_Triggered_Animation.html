@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./Assets/AssetLibrary.ico" type="x-icon">
+    <title>Scroll-Triggered Animation</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            appearance: 0;
+            box-sizing: border-box;
+        }
+        html{
+            font: 1.3rem "Nunito", sans-serif;
+            scroll-behavior: smooth;
+        }
+        body{
+            min-height: 100vh;
+            background-color: aliceblue;
+            /* background: linear-gradient(120deg, #142cb1, #15054e, #0d0116); */
+        }
+        button, input{
+            font: inherit;
+        }
+        img{
+            display: block;
+        }
+        ul{
+            list-style: none;
+        }
+        a{
+            text-decoration: none;
+        }
+        .nowrap{
+            white-space: nowrap;
+        }
+        html::-webkit-scrollbar{
+            width: 15px;
+        }
+        html::-webkit-scrollbar-track{
+            background-color: #333;
+        }
+        html::-webkit-scrollbar-thumb{
+            background-color: #ff4500;
+            border: 3px solid #333;
+            border-radius: 2em;
+        }
+
+        /* Page Loader */
+        .loader-container{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            inset: 0;
+            background-color: #000;
+            opacity: 1;
+            visibility: visible;
+            transition-property: opacity, visibility;
+        }
+        .loader{
+            width: 70px;
+            height: 70px;
+            color: #f5f5f5;
+            font-size: .6rem;
+            border: 3px solid orange;
+            border-left-color: transparent;
+            border-right-color: transparent;
+            border-radius: 50%;
+            padding: .5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .loader-container.hidden{
+            opacity: 0;
+            visibility: hidden;
+        }
+        #page-content{
+            opacity: 0;
+            transform: translate3d(0, -2rem, 0);
+            transition-property: transform, opacity;
+        }
+        #page-content.visible{
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+        .header{
+            height: 58px;
+            background-color: #f0f8ff;
+            position: sticky;
+            top: 0;
+            box-shadow: 0 20px 20px -10px #000;
+            z-index: 4;
+        }
+        .nav{
+           height: 100%;
+           width: 100%;
+           display: flex;
+           justify-content: space-around;
+           align-items: center;
+           color: #000;
+           padding: .5rem;
+        }
+        .nav > h1{
+            font:2rem Magneto;
+            color: orange;
+            text-shadow: 5px 0 2px #000;
+            /* border: 2px solid #333; */
+            /* border-radius: .1em; */
+        }
+        .nav > ul{
+            display: flex;
+            gap: 3rem;
+        }
+        .nav > ul > li > a:any-link{
+            color: #000;
+            transition-property: color;
+        }
+        .nav > ul > li > a:hover{
+            color: #ffa500;
+        }
+        .sub-menu{
+            position: relative;
+        }
+        .sub-menu::after{
+            content: url(./Assets/chevron-down-outline.svg);
+            position: absolute;
+            display: inline-block;
+            transform: translate3d(0, 0, 0);
+            opacity: .5;
+            transition-property: transform, opacity;
+        }
+        .sub-menu:hover::after {
+            transform: translate3d(10px, 0, 0) rotate(1turn);
+            opacity: 1;
+        }
+        .sub-menu > ul{
+            position: absolute;
+            top: 100%;
+            background-color: #333;
+            height: 300px;
+            width: 250px;
+            border-radius: .5em;
+            padding: 1rem;
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            transform: translate3d(3rem, 0, 0);
+            opacity: 0;
+            visibility: hidden;
+            transition-property: opacity, transform, visibility;
+        }
+        .sub-menu:hover ul{
+            opacity: 1;
+            visibility: visible;
+            transform: translate3d(-2rem, 0, 0);
+        }
+        .sub-menu > ul > li{
+            padding: 1rem;
+            background-color: #7a77779c;
+            display: block;
+            width: 100%;
+            border-radius: .5em;
+            cursor: pointer;
+            transition-property: background-color;
+        }
+        .sub-menu > ul > li:hover{
+            background-color: rgba(0, 0, 0, 0.527);
+        }
+        .sub-menu > ul > li > a{
+            color: #f5f5f5;
+            padding: 1rem;
+        }
+        .btn{
+            font-size: .8rem;
+            width: 150px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #f5f5f5;
+            background: #800080;
+            border: 2px solid #000;
+            border-radius: 2em;
+            cursor: pointer;
+            transition-property: background-color, color;
+        }
+        .btn > a{
+            color: #fff;
+        }
+        .btn:hover{
+            color: #000;
+            background-color: #ffa500;
+        }
+        .btn:hover a{
+            color: #000;
+        }
+
+        .hero{
+            height: 100vh;
+            width: 100%;
+            position: relative;
+            padding: 1rem;
+            z-index: 2;
+            background: linear-gradient(120deg, #142cb1, #15054e, #0d0116);
+        }
+        .hero::before{
+            content: '';
+            position: absolute;
+            background-color: #00000080;
+            inset: 0;
+            z-index: -1;
+        }
+        .hero > div{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .start-btn{
+            font:.7rem 'Poppins';
+            color: #f5f5f5;
+            margin-top: .5rem;
+            height: 150px;
+            width: 150px;
+            padding: 1rem;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            background-color: #800080;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .start-btn-text{
+            white-space: nowrap;
+        }
+        .start-btn:active{
+            color: #000;
+            background-color: #ffa500;
+        }
+        .title{
+            font: 7rem "Colonna MT";
+            line-height: .9;
+            -webkit-background-clip: text;
+            background-clip: text;
+            background-image: linear-gradient(120deg, pink , #12ddb1, red);
+            color: transparent;
+        }
+        #typewriter{
+            text-decoration: underline;
+        }
+        #typewriter,
+        #cursor{
+            color: orange;
+        }
+        .main{
+            background-image: linear-gradient(to bottom, #000, #06032b, rgb(8, 8, 87));
+            min-height: 100vh;
+            padding: 1rem;
+            color: #f5f5f5;
+            position: relative;
+            /* background-image: url(./Assets/chessboard.jpg);
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat; */
+            z-index: 1;
+        }
+        .golden-chess{
+            position: fixed;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: -1;
+        }
+        /* .main::before{
+            content: '';
+            background-image: linear-gradient(120deg, #000, #333333ce);
+            inset: 0;
+            position: absolute;
+            z-index: -1;
+        } */
+        .main > p a:any-link{
+            color: blue;
+        }
+        .imp-head{
+            font: 4rem "Aerolite";
+            text-transform: capitalize;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            background-image: linear-gradient(120deg, #12ddb1, 20%,  #030347);
+            position: relative;
+        }
+        .par{
+            padding-left: 1rem;
+        }
+        .par::before{
+            content: '';
+            height: 100px;
+            width: 10px;
+            background-color: peru;
+            position: absolute;
+            left: 1rem;
+            border-radius: 2em;
+        }
+        .text{
+            font: 2rem "Gladifilthefte";
+            padding-top: 2rem;
+        }
+        .article{
+            padding-left: 2rem;
+        }
+        .details > li{
+            padding-left: .5rem;
+        }
+        .details > li::marker{
+            content: url(./Assets/s_okay.png);
+        }
+        .chessboard{
+            margin-bottom: 10rem;
+        }
+        .board{
+            float: left;
+            padding-right: 1rem;
+        }
+        .pieces-text{
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        .pieces-container{
+            display: flex;
+            justify-content: space-evenly;
+        }
+        .box{
+            background-color: burlywood;
+            color: #000;
+            height: 500px;
+            width: 350px;
+            border-radius: 1em;
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 1rem;
+            transition-property: border-radius;
+        }
+        .box:hover{
+            border-radius: .5em;
+        }
+        .box > h2 {
+            align-self: center;
+            font-family: 'Poppins';
+            text-decoration: underline;
+        }
+        .box > figure{
+            display: flex;
+            align-items: center;
+        }
+        .board-pieces{
+            width: 100%;
+            min-height: 60vh;
+            display: flex;
+            justify-content: center;
+            margin-top: 10rem;
+            position: relative;
+        }
+        .get-pieces-on-board{
+            width: 600px;
+            height: 560px;
+            background-color: #12ddb1;
+            padding: 1rem;
+            border-top-right-radius: 2em;
+            border-bottom-right-radius: 2em;
+            border-top-left-radius: 2em;
+            color: #000;
+            display: flex;
+            flex-flow: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .robot{
+            width: 400px;
+            height: auto;
+            position: absolute;
+            left: 3.8rem;
+            top: 5.2rem;
+            z-index: 1;
+        }
+        .board-text{
+            font:2rem "Gladifilthefte";
+        }
+        .get-pieces-on-board > p{
+            padding-bottom: 1rem;
+        }
+        .chess-arrange{
+            box-shadow: 0 0 5px #000;
+        }
+        .play{
+            min-height: 60vh;
+            margin-top: 1rem;
+        }
+        .behavior{
+            background-color: #333;
+            width: 100%;
+            height: 100vh;
+            border-radius: 2em;
+            position: relative;
+        }
+        .behavior:hover::after{
+            background-color: orange;
+        }
+        .behavior::after{
+            content: '';
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            background-color: #f5f5f5;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            transform: skewX(4deg);
+        }
+        .my-arrows{
+            transform: skewX(4deg);
+            z-index: 2;
+        }
+        .btn-left-arrow{
+            position: absolute;
+            top: 11rem;
+        }
+        .btn-right-arrow{
+            position: absolute;
+            right: 0;
+            top: 15rem;
+        }
+        .navigate-btn{
+            background-color: #c320c9;
+            height: 80px;
+            width: 80px;
+            border: 0;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transform: scale(1);
+            opacity: 0.9;
+            transition: transform, opacity;
+        }
+        .navigate-btn:hover{
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        .piece-box{
+            background-color: #12ddb1;
+            position: absolute;
+            top: 3rem;
+            left: 1rem;
+            height: 81vh;
+            width: 1260px;
+            padding: 1rem;
+            color: #000;
+            border-radius: .5em;
+            overflow-x: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+        .piece-box::-webkit-scrollbar{
+            width: 0;
+            height: 0;
+        }
+        .pres{
+            background-color: #0a8a6e;
+            width: 300px;
+            height: 450px;
+            padding: 1rem;
+            border-radius: .5em;
+        }
+        .props-img{
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .pres-img{
+            width: 50px;
+            height: 50px;
+            border: 2px solid #000;
+            border-radius: 50%;
+        }
+        .name{
+            font-weight: bold;
+        }
+        .illustration{
+            padding-top: 1rem;
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+        }
+        .small{
+            width: 150px;
+            height: auto;
+        }
+        .actual-play{
+            background-color: #f5f5f5;
+            margin-top: 10rem;
+            min-height: 100vh;
+            width: 100%;
+            color: #000;
+            padding: 1rem;
+            border-radius: .5em;
+        }
+        .watching{
+            font: 2rem "Gladifilthefte";
+        }
+        .must-center{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .video-nav{
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: transform .3s ease-in-out;  
+        }
+        .video-nav:hover{
+            transform: scale(1.2);
+        }
+        .nav-img{
+            width: 50px;
+        }
+        .video-box{
+            height: 75vh;
+            width: 808px;
+            border-radius: 1em;
+            background-color: #12ddb1;
+            overflow-x: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            object-fit: cover;
+            gap: .5rem;
+            padding: .2rem;
+        }
+        .video-box::-webkit-scrollbar{
+            width: 0;
+            height: 0;
+        }
+        .video-item{
+            height: 450px;
+            width: 800px;
+            border-radius: .5em;
+        }
+        .large-image{
+            min-height: 100vh;
+            width: 100%;
+            margin-top: 10rem;
+            position: relative;
+        }
+        .advice{
+            background-color: #12ddb1;
+            height: 200px;
+            width: 400px;
+            padding: 1rem;
+            position: absolute;
+            border-radius: 2em;
+            top: 5rem;
+            left: 30rem;
+            transform: skewY(-5deg);
+        }
+        .advice::before{
+            content: '';
+            position: absolute;
+            left: -1rem;
+            top: 2.5rem;
+            height: 50px;
+            width: 50px;
+            background-color: #12ddb1;
+            transform: rotate(45deg);
+        }
+        .my-article{
+            color: #000;
+            font-family: 'Poppins';
+            transform: skewY(5deg);
+        }
+        .finishing{
+            margin-top: 4rem;
+            min-height: 30vh;
+            width: 100%;
+            display: flex;
+            flex-flow: column;
+            align-items: center;
+            justify-content: center;
+            border: 5px solid orangered;
+            border-left-color: transparent;
+            border-bottom-color: transparent;
+            border-radius: .2em;
+            padding: 1rem;
+        }
+        .finishing > h1{
+            font:5rem 'Gabriola';
+            font-variant: small-caps;
+            text-transform: capitalize;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            background-image: linear-gradient(120deg, #12ddb1, 50%,  red);
+        }
+        .information{
+            padding: 1rem;
+            min-height: 60vh;
+            width: 100%;
+            background-color: #000;
+            font-family: 'Poppins';
+            display: grid;
+            grid-auto-flow: column;
+            grid-template-columns: repeat(3, 1fr);
+            z-index: -1;
+        }
+        .each-info{
+            padding: 1rem;
+            height: 100%;
+            border-right: 3px solid #f5f5f5;
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: flex-start;
+            color: #f5f5f5;
+        }
+        .each-info:last-child{
+            border: none;
+        }
+        .big{
+            font: 1.3rem 'Roboto';
+            font-weight: bold;
+        }
+        .imp-info{
+            padding-top: 2rem;
+            font: 1rem 'Nunito';
+            height: 100%;
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: flex-start;
+            align-items: flex-start;
+        }
+        .find{
+            padding: 1rem;
+        }
+        .find > figure{
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .find-logo{
+            width: 50px;
+        }
+        .find-logo-call{
+            width: 30px;
+        }
+        .imp-info > ul{
+            padding: 1rem 1rem 0 1rem;
+        }
+        .imp-info > ul > li{
+            list-style:disc;
+        }
+        .footer{
+            height: 30px;
+            width: 100%;
+            position: sticky;
+            bottom: 0;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+        }
+        
+
+        .nav > ul > li > a,
+        .sub-menu::after,
+        .sub-menu > ul,
+        .sub-menu > ul > li,
+        .btn,
+        .loader-container,
+        #page-content,
+        .box,
+        .behavior::after,
+        .navigate-btn{
+            transition-duration: .3s;
+            transition-timing-function: ease-in-out;
+        }
+
+        html.lenis{
+            height: auto;
+        }
+        .lenis.lenis-smooth{
+            scroll-behavior: auto;
+        }
+        .lenis.lenis-smooth [data-lenis-prevent]{
+            overscroll-behavior: contain;
+        }
+        .lenis.lenis-stopped{
+            overflow: hidden;
+        }
+        .lenis.lenis-scrolling iframe{
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+
+    <div class="loader-container">
+        <div class="loader"></div>
+    </div>
+    
+    <section id="page-content">
+        <header class="header">
+            <nav class="nav">
+                <!-- <figure>
+                    <img src="./Assets/wK.png" alt="logo">
+                </figure> -->
+                <h1>Chess Nation</h1>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li class="sub-menu">
+                        <a href="#">Tutorials</a>
+                        <ul>
+                            <li><a href="#video1">Beginner</a></li>
+                            <li><a href="#video2">Training</a></li>
+                            <li><a href="#video3">Principles</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+                <a href="Game/Game.html">
+                    <button class="btn" id="btn">
+                        Get Started
+                    </button>
+                </a>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <h1 class="title">Play with International Chess <span class="nowrap"><span id="typewriter"></span><span id="cursor">|</span><span class="fixed">Worldwide.</span></span></h1>
+            <div>
+                <a href="Game/Game.html">
+                    <button class="start-btn" id="start-btn">
+                        <span class="start-btn-text">Get Started</span>
+                    </button>
+                </a>
+            </div>
+        </section>
+
+        <section class="main">
+            <div class="golden-chess">
+                <figure>
+                    <img src="./Assets/pngwing.com (2).png" alt="" class="gold-chess">
+                </figure>
+            </div>
+            <h1 class="imp-head beginner">Are you a beginner?</h1>
+            <div class="par">
+                <p>Hi, are you a beginner? You can start by checking out the following <em><a href="#tutorials">tutorials</a></em> on how to play chess. </p>
+                <p>Or maybe, you don't even know what <strong>chess</strong> is!</p>
+                <p>Don't freak out if you think we've got nothing for absolute beginners. Actually, we've got you sorted...</p>
+            </div>
+            <section class="beginner-content">
+                <h3 class="text">Origin of Chess</h3>
+                <article class="article">
+                    <ul class="details">
+                        <li>The history of chess can be traced back nearly 1,500 years to its earliest known predecessor, called chaturanga, in
+                        India.</li>
+                        <li>It spread to Persia, where it was modified in terms of shapes and rules and developed into Shatranj.</li>
+                        <li>The game evolved into its current form by about 1500 CE.</li>
+                        <li>"Romantic chess" was the predominant playing style from the late 18th century to the 1880s.</li>
+                    </ul>
+                </article>
+                <div class="chessboard">
+                    <h4 class="text">The chessboard</h4>
+                    <figure>
+                        <img src="./Assets/Screenshot 2024-02-26 053904.png" alt="" class="board">
+                    </figure>
+                    <p>The chessboard is an (8 &times; 8) flat board.</p>
+                    <p>It has alternate square shades of black and the others white.</p>
+                    <p>Further instructions on how the pieces move on the white and black squares are revisited on <span class="nowrap"><a href="#pieces">Behavior of each piece</a></span></p>
+                </div>
+                <div class="pieces-text">
+                    <h4 class="text">The pieces</h4>
+                </div>
+                <div class="pieces-container">
+                    <div class="box white">
+                        <h2>White Pieces</h2>
+                        <figure>
+                            <img src="./Assets/wp.png" alt=""> 
+                            <figcaption>
+                                <p>Pawn</p>
+                                <p>(1 pt)</p>
+                            </figcaption>
+                        </figure>
+                        <figure>
+                            <img src="./Assets/wB.png" alt=""> 
+                            <figcaption>
+                                <p>Bishop</p>
+                                <p>(3 pts)</p>
+                            </figcaption>
+                        </figure>
+                        <figure>
+                            <img src="./Assets/wN.png" alt=""> 
+                            <figcaption>
+                                <p>Knight</p>
+                                <p>(3 pts)</p>
+                            </figcaption>
+                        </figure>
+                        <figure>
+                            <img src="./Assets/wR.png" alt=""> 
+                            <figcaption>
+                                <p>Rook</p>
+                                <p>(5 pts)</p>
+                            </figcaption>
+                        </figure>
+                        <figure>
+                            <img src="./Assets/wQ.png" alt="">
+                            <figcaption>
+                                <p>Queen</p>
+                                <p>(9 pts)</p>
+                            </figcaption>
+                        </figure>
+                        <figure>
+                            <img src="./Assets/wK.png" alt="">
+                            <figcaption>
+                                <p>King</p>
+                                <p>(1 pt)</p>
+                            </figcaption>
+                        </figure>
+                    </div>
+                    <div class="box black">
+                        <h2>Black Pieces</h2>
+                        <figure>
+                            <img src="./Assets/bp.png" alt=""> 
+                            <figcaption>
+                                <p>Pawn</p>
+                                <p>(1 pt)</p>
+                            </figcaption>
+                        </figure>
+                        <figure>
+                            <img src="./Assets/bB.png" alt=""> 
+                            <figcaption>
+                                <p>Bishop</p>
+                                <p>(3 pts)</p>
+                            </figcaption>
+                        </figure>
+                        <figure>
+                            <img src="./Assets/bN.png" alt=""> 
+                            <figcaption>
+                                <p>Knight</p>
+                                <p>(3 pts)</p>
+                            </figcaption>
+                        </figure>
+                        <figure>
+                            <img src="./Assets/bR.png" alt=""> 
+                            <figcaption>
+                                <p>Rook</p>
+                                <p>(5 pts)</p>
+                            </figcaption>
+                        </figure>
+                        <figure>
+                            <img src="./Assets/bQ.png" alt="">
+                            <figcaption>
+                                <p>Queen</p>
+                                <p>(9 pts)</p>
+                            </figcaption>
+                        </figure>
+                        <figure>
+                            <img src="./Assets/bK.png" alt="">
+                            <figcaption>
+                                <p>King</p>
+                                <p>(1 pt)</p>
+                            </figcaption>
+                        </figure>
+                    </div>
+                </div>
+                <section class="board-pieces">
+                    <figure>
+                        <img src="./Assets/pngwing.com (3).png" alt="" class="robot">
+                    </figure>
+                    <div class="get-pieces-on-board">
+                        <h4 class="board-text">Getting the Pieces on the Board</h4>
+                        <p>The pieces should be arranged like this on the chessboard</p>
+                        <figure class="chess-arrange">
+                            <img src="./Assets/Screenshot 2024-02-26 095651.png" alt="">
+                        </figure>
+                    </div>
+                </section>
+                <section class="play">
+                    <h4 class="text" id="pieces">Behavior of each Piece</h4>
+                    <div class="behavior">
+                        <div class="my-arrows btn-left-arrow">
+                            <button class="navigate-btn left-btn" id="left" onclick="scrollLeft();">
+                                <img src="./Assets/chevron-left.png" alt="" class="the-btn">
+                            </button>
+                        </div>
+                        <div class="piece-box">
+                            <div class="piece-box-each">
+                                <figure class="pres">
+                                    <div class="props-img">
+                                        <img src="./Assets/wp.png" alt="" class="pres-img">
+                                        <span class="name">Pawn</span>
+                                    </div>
+                                    <figcaption class="illustration">
+                                        <figure>
+                                            <img src="./Assets/pawn_1.png" alt="" class="small">
+                                        </figure>
+                                        <figure>
+                                            <img src="./Assets/pawn_2.png" alt="" class="small">
+                                        </figure> 
+                                    </figcaption>
+                                </figure>
+                            </div>
+                            <div class="piece-box-each">
+                                <figure class="pres">
+                                    <div class="props-img">
+                                        <img src="./Assets/wB.png" alt="" class="pres-img">
+                                        <span class="name">Bishop</span>
+                                    </div>
+                                    <figcaption class="illustration">
+                                        <figure>
+                                            <img src="./Assets/bishop_1.png" alt="" class="small">
+                                        </figure> 
+                                        <figure>
+                                            <img src="./Assets/bishop_2.png" alt="" class="small">
+                                        </figure> 
+                                    </figcaption>
+                                </figure>
+                            </div>
+                            <div class="piece-box-each">
+                                <figure class="pres">
+                                    <div class="props-img">
+                                        <img src="./Assets/wN.png" alt="" class="pres-img">
+                                        <span class="name">Knight</span>
+                                    </div>
+                                    <figcaption class="illustration">
+                                        <figure>
+                                            <img src="./Assets/knight_1.png" alt="" class="small">
+                                        </figure>
+                                        <figure>
+                                            <img src="./Assets/knight_2.png" alt="" class="small">
+                                        </figure> 
+                                    </figcaption>
+                                </figure>
+                            </div>
+                            <div class="piece-box-each">
+                                <figure class="pres">
+                                    <div class="props-img">
+                                        <img src="./Assets/wR.png" alt="" class="pres-img">
+                                        <span class="name">Rook</span>
+                                    </div>
+                                    <figcaption class="illustration">
+                                        <figure>
+                                            <img src="./Assets/rook_1.png" alt="" class="small">
+                                        </figure>
+                                        <figure>
+                                            <img src="./Assets/rook_2.png" alt="" class="small">
+                                        </figure> 
+                                    </figcaption>
+                                </figure>
+                            </div>
+                            <div class="piece-box-each">
+                                <figure class="pres">
+                                    <div class="props-img">
+                                        <img src="./Assets/wQ.png" alt="" class="pres-img">
+                                        <span class="name">Queen</span>
+                                    </div>
+                                    <figcaption class="illustration">
+                                        <figure>
+                                            <img src="./Assets/queen_1.png" alt="" class="small">
+                                        </figure>
+                                        <figure>
+                                            <img src="./Assets/queen_2.png" alt="" class="small">
+                                        </figure> 
+                                    </figcaption>
+                                </figure>
+                            </div>
+                            <div class="piece-box-each">
+                                <figure class="pres">
+                                    <div class="props-img">
+                                        <img src="./Assets/wK.png" alt="" class="pres-img">
+                                        <span class="name">King</span>
+                                    </div>
+                                    <figcaption class="illustration">
+                                        <figure>
+                                            <img src="./Assets/king_1.png" alt="" class="small">
+                                        </figure>
+                                        <figure>
+                                            <img src="./Assets/king_2.png" alt="" class="small">
+                                        </figure> 
+                                    </figcaption>
+                                </figure>
+                            </div>
+                        </div>
+                        <div class="my-arrows btn-right-arrow">
+                            <button class="navigate-btn right-btn" id="right" onclick="scrollRight();">
+                                <img src="./Assets/chevron-right.png" alt="" class="the-btn">
+                            </button>
+                        </div>
+                    </div>
+                </section>
+                <section class="actual-play">
+                    <h1 class="imp-head">Now You're ready</h1>
+                    <h4 class="watching">Watch some tutorials on how to play chess</h4>
+                    <div class="must-center">
+                        <div class="video-navigation">
+                            <button class="video-nav video-nav-left"><img src="./Assets/chevron-back-circle.svg" alt="" class="nav-img"></button>
+                        </div>
+                        <div class="video-box" id="video-box">
+                            <video src="./Assets/How To Play Chess- The Ultimate Beginner Guide.webm" class="video-item" id="video1" controls></video> 
+                            <video src="./Assets/High Level Chess Training Games - Rapid Format.webm" class="video-item" id="video2" controls></video> 
+                            <video src="./Assets/35 Vital Chess Principles - Opening, Middlegame, and Endgame Principles - Chess Strategy and Ideas.webm" class="video-item" id="video3" controls></video> 
+                        </div>
+                        <div class="video-navigation">
+                            <button class="video-nav video-nav-right"><img src="./Assets/chevron-forward-circle.svg" alt="" class="nav-img"></button>
+                        </div>
+                    </div>
+                </section>
+                <section class="large-image">
+                    <img src="./Assets/pngwing.com (6).png" alt="" class="robot-large">
+                    <div class="advice">
+                        <article class="my-article">
+                            <h3>Now you know how to play chess</h3>
+                            <p>You are ready to take the game by yourself.</p>
+                        </article>
+                    </div>
+                </section>
+                <section class="finishing">
+                    <h1>Become a Chess Champion Now!!</h1>
+                    <div class="my-btn-last">
+                        <a href="Game/Game.html">
+                            <button class="start-btn">
+                                <span class="start-btn-text">Get Started</span>
+                            </button>
+                        </a>
+                    </div>
+                </section>
+            </section>
+        </section>
+        <section class="information">
+            <div class="each-info contact">
+                <h1 class="big">About</h1>
+                <hr>
+                <div class="imp-info">
+                    <p>This guy* is a professional web developer.</p>
+                    <p>He has over a decade of experience in the web-dev world.</p>
+                    <p>From the University of MIT, he can do crazy sort of things, including...</p>
+                </div>
+            </div>
+            <div class="each-info contact">
+                <h1 class="big">Contact</h1>
+                <hr>
+                <div class="imp-info">
+                    <p>You can find him on:</p>
+                    <div class="find">
+                        <figure>
+                            <img src="./Assets/logo-discord.svg" alt="" class="find-logo">
+                            <figcaption>
+                                @disGuy123
+                            </figcaption>
+                        </figure>
+                        <figure>
+                            <img src="./Assets/logo-github.svg" alt="" class="find-logo">
+                            <figcaption>
+                                @gitGuy123
+                            </figcaption>
+                        </figure>
+                    </div>
+                    <p>Or just call him:</p>
+                    <div class="find">  
+                        <figure>
+                            <img src="./Assets/stat_sys_phone_call.png" alt="" class="find-logo-call">
+                            <figcaption>
+                                <p>+254703850577</p>
+                            </figcaption>
+                        </figure>
+                    </div>
+                </div>
+            </div>
+            <div class="each-info contact">
+                <h1 class="big">Services</h1>
+                <hr>
+                <div class="imp-info">
+                    <p>Despite being an experienced web developer, this guy* is also a freelancer. He is familiar with:</p>
+                    <ul>
+                        <li>Online Writing</li>
+                        <li>Online Typing </li>
+                        <li>Data Keying</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <footer class="footer">
+            <p>&copy;All Rights Reserved</p>
+        </footer>
+    </section>
+
+    <script src="gsap.min.js"></script>
+    <script src="TextPlugin.min.js"></script>
+    <script src="ScrollTrigger.min.js"></script>
+    <script src="lenis.min.js"></script>
+    <script>
+
+
+        const animateLoader = () => {
+            let tl = gsap.timeline({
+                repeat: -1,
+            });
+            
+            tl.to('.loader', {
+                rotate: 360,
+                duration: .6,
+                ease: Power4.inOut
+            });
+        }
+        animateLoader();
+
+        const typeWriterEffect = () => {
+            const words = ["Tyros", "Novices", "Nerds", "Experts"];
+        
+            let tl = gsap.timeline({
+                repeat: -1
+            });
+
+            words.forEach(word => {
+                let textTl = gsap.timeline({
+                    repeat: 1,
+                    yoyo: true,
+                    repeatDelay: 5
+                });
+
+                textTl.to('#typewriter', {
+                    text: word,
+                    duration: 1,
+                    onUpdate: () => {
+                        cursorTl.restart();
+                        cursorTl.pause();
+                    },
+                    onComplete: () => {
+                        cursorTl.play();
+                    }
+
+                });
+                tl.add(textTl);
+            });
+
+            let cursorTl = gsap.timeline({
+                repeat: -1,
+                repeatDelay: .6
+            });
+
+            cursorTl.to('#cursor', {
+                opacity: 1,
+                duration: 0
+            }).to('#cursor', {
+                opacity: 0,
+                duration: 0,
+                delay: .6
+            });
+
+        }   
+        typeWriterEffect();
+
+        gsap.set('.behavior', {
+            skewY: -4
+        });  
+        gsap.set('.piece-box', {
+            skewY: 4
+        });
+
+        const magneticButton = () => {
+            const button = document. querySelector('.start-btn');
+            const buttonText = button.querySelector('.start-btn-text');
+
+            const activateMagneticButton = (event) => {
+                let boundBox = button.getBoundingClientRect();
+                const buttonStrength = 40;
+                const buttonTextStrength = 80;
+                const newX = ((event.clientX - boundBox.left)/button.offsetWidth) - 0.5;
+                const newY = ((event.clientY - boundBox.top)/button.offsetHeight) - 0.5;
+
+                gsap.to(button, {
+                    duration: .5,
+                    x: newX*buttonStrength,
+                    y: newY*buttonStrength,
+                    ease: Power4.inOut
+                });
+                gsap.to(buttonText, {
+                    duration: .5,
+                    x: newX*buttonTextStrength,
+                    y: newY*buttonTextStrength,
+                    ease: Power4.inOut
+                });
+            }
+            const resetMagneticButton = (event) => {
+                gsap.to(button, {
+                    duration: 1,
+                    x: 0,
+                    y: 0,
+                    ease: Elastic.easeOut
+                });
+                gsap.to(buttonText, {
+                    duration: 1,
+                    x: 0,
+                    y: 0,
+                    ease: Elastic.easeOut
+                });
+            }
+
+            button.addEventListener('mousemove', activateMagneticButton);
+            button.addEventListener('mouseleave', resetMagneticButton);
+        }
+        magneticButton();
+
+        const navigateImages = () => {
+            let leftButton = document.querySelector('.left-btn');
+            leftButton.onclick = () => {
+                let videoContainer = document.querySelector('.piece-box');
+                sideScroll(videoContainer, 'left', 25,100,200);
+            }
+            let rightButton = document.querySelector('.right-btn');
+            rightButton.onclick = () => {
+                let videoContainer = document.querySelector('.piece-box');
+                sideScroll(videoContainer, 'right', 25,100,200);
+            }
+
+            const sideScroll = (element, direction, speed, distance, step) => {
+                scrollAmount = 0;
+                let slideTimer = setInterval(() => {
+                    direction === 'left' ? element.scrollLeft -= step : element.scrollLeft += step; 
+
+                    scrollAmount+=step;
+                    scrollAmount >= distance ? window.clearInterval(slideTimer) : window.clearInterval(slideTimer);
+                }, speed);
+            }
+        }
+        navigateImages();
+        
+        const navigateVideo = () => {
+            let leftButton = document.querySelector('.video-nav-left');
+            leftButton.onclick = () => {
+                let videoContainer = document.querySelector('#video-box');
+                sideScroll(videoContainer, 'left', 25,100,811);
+            }
+            let rightButton = document.querySelector('.video-nav-right');
+            rightButton.onclick = () => {
+                let videoContainer = document.querySelector('#video-box');
+                sideScroll(videoContainer, 'right', 25,100,811);
+            }
+
+            const sideScroll = (element, direction, speed, distance, step) => {
+                scrollAmount = 0;
+                let slideTimer = setInterval(() => {
+                    direction === 'left' ? element.scrollLeft -= step : element.scrollLeft += step; 
+
+                    scrollAmount+=step;
+                    scrollAmount >= distance ? window.clearInterval(slideTimer) : window.clearInterval(slideTimer);
+                }, speed);
+            }
+        }   
+        navigateVideo();
+
+
+        const loadPage = () => {
+            const pageContent = document.querySelector('#page-content');
+            const loaderContainer = document.querySelector('.loader-container');
+
+            window.addEventListener('load', () => {
+                loaderContainer.classList.add('hidden');
+                pageContent.classList.add('visible');
+            });
+        }
+        loadPage();
+
+        // const buttonPop = () => {
+        //     const hero = document.querySelector('.hero');
+        //     const buttonPop = document.querySelector('.start-btn');
+
+        //     gsap.set(buttonPop, {
+        //         yPercent: -100,
+        //         opacity: 0
+        //     });
+        //     gsap.to(buttonPop, {
+        //         ScrollTrigger: {
+        //             trigger: hero,
+        //             start: 'top bottom',
+        //             end: 'bottom 90%',
+        //             markers: true
+        //         },
+        //         xPercent: 0,
+        //         opacity: 1
+        //     });
+        // }
+        // buttonPop();
+
+        const lenisSmoothScroll = () => {
+            const lenis = new Lenis();
+
+            lenis.on('scroll', (e) => {
+                console.log(e)
+            });
+
+            lenis.on('scroll', ScrollTrigger.update);
+
+            gsap.ticker.add((time) => {
+                lenis.raf(time * 1000);
+            });
+
+            gsap.ticker.lagSmoothing(0);
+        }
+        lenisSmoothScroll();
+
+    </script>
+</body>
+</html>

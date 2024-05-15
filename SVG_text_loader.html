@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Text Loader</title>
+    <link rel="icon" href="./Assets/AssetLibrary.ico" type="x-icon">
+    <style>
+        *{margin: 0;padding: 0;box-sizing: border-box;}
+        html{font: 1.5rem "Gabriola"}
+        body{
+            min-height: 100vh;
+            display: grid;
+            place-content: center;
+            background-color: #000;
+        }
+        svg{
+            width: 20rem;
+            font-weight: 500;
+        }
+        svg text{
+            font-size: 4rem;
+            stroke-width: 2;
+            letter-spacing: -6px;
+        }
+        svg text.text-body{
+            stroke: #fff;
+            animation: 3s infinite alternate animate;
+        }
+        svg text.dot{
+            fill: #fff;
+            stroke: #fff;
+            animation: 3s infinite alternate animate-dot;
+        }
+        @keyframes animate{
+            0%{
+                fill: transparent;
+                stroke: #fff;
+                stroke-width: 3;
+                stroke-dashoffset: 25%;
+                stroke-dasharray: 0 32%;
+            }
+            50%{
+                fill: transparent;
+                stroke: #fff;
+                stroke-width: 3;
+            }
+            80%,
+            100%{
+                fill: #fff;
+                stroke: transparent;
+                stroke-width: 0;
+                stroke-dashoffset: -25%;
+                stroke-dasharray: 32% 0;
+            }
+        }
+        @keyframes animate-dot{
+            0%,
+            60%{
+                opacity: 0;
+            }
+            100%{
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <svg viewBox="0 0 400 160">
+            <text x="50%" y="50%" dy=".4em" text-anchor="middle" class="text-body">
+                AnX
+            </text>
+            <text x="50%" y="50%" dy=".4em" dx=".75em" text-anchor="middle" class="text-body dot">
+                .
+            </text>
+        </svg>
+    </div>
+</body>
+</html>

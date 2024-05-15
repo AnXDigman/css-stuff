@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./Assets/AssetLibrary.ico" type="x-icon">
+    <title>Site Preloader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            appearance: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font: 1.5rem "Gabriola", sans-serif;
+            scroll-behavior: smooth;
+            font-weight: bold;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: rgba(168, 162, 168, 0.333);
+            overflow: hidden;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .header {
+            background-color: #333;
+            height: 100px;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+        }
+
+        .list {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4rem;
+        }
+
+        .list>li>a {
+            color: #f5f5f5;
+            font-size: 1.3rem;
+            transition: color .3s ease-in-out,
+                border-bottom 0s ease-in-out;
+        }
+
+        .list>li>a:hover {
+            color: #ffa500;
+            border-bottom: 2px solid #3b013b;
+        }
+
+        .has-submenu {
+            position: relative;
+            z-index: 2;
+        }
+
+        .has-submenu::after {
+            content: url(./Assets/chevron-down-outline.svg);
+            position: absolute;
+            display: inline-block;
+            top: 0.5rem;
+            left: 2.87rem;
+            opacity: 0.3;
+            transform: translateX(0);
+            transition: transform .5s ease-in-out,
+                opacity .3s ease-in-out;
+        }
+
+        .has-submenu:hover::after {
+            transform: translateX(5px) rotate(360deg);
+            opacity: 1;
+        }
+
+        .has-submenu>ul {
+            position: absolute;
+            top: 100%;
+            background-color: #494545;
+            padding: 1rem;
+            border-radius: .3em;
+            display: none;
+            transition: visibility 0.5s ease-in-out,
+                left .3s ease-in-out,
+                opacity .3s ease-in-out;
+        }
+
+        .has-submenu>ul {
+            display: block;
+            opacity: 0;
+            visibility: hidden;
+            left: 2rem;
+        }
+
+        .has-submenu:hover ul {
+            opacity: 1;
+            visibility: visible;
+            left: -2rem;
+        }
+
+        .has-submenu>ul>li>a {
+            color: #f5f5f5;
+            padding: .5rem;
+            border-radius: 2em;
+            display: block;
+            width: 100%;
+            transform: translateX(0) scale(1);
+            transition: transform .3s ease-in-out,
+                background-color .2s ease-in-out;
+        }
+
+        .has-submenu>ul>li>a:hover {
+            background-color: #3b013b;
+            transform: translateX(-10px) scale(1.08);
+        }
+
+        .main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 1.5rem;
+        }
+
+        .accordion {
+            display: flex;
+            flex-flow: row nowrap;
+            gap: 0.5rem;
+        }
+
+        .box {
+            min-height: 68vh;
+            width: 150px;
+            background-color: #7e7b7b;
+            border-radius: .5em;
+            padding: 1rem;
+            color: #f5f5f5;
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            cursor: pointer;
+            transition: width .3s ease-in-out,
+                background-color .5s ease-in-out,
+                padding-block .5s ease-in-out;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .box:hover:not(.opened) {
+            padding-block: 1.5rem;
+        }
+
+        .box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(#050000, #02020231 #050000);
+            width: 100%;
+            height: 100%;
+            border-radius: .5em;
+            z-index: -1;
+        }
+
+        .box:first-child {
+            background-image: url(./Assets/img_1.png);
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        .box:nth-child(2) {
+            background-image: url(./Assets/img_2.png);
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        .box:nth-child(3) {
+            background-image: url(./Assets/img_3.png);
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        .box:nth-child(4) {
+            background-image: url(./Assets/img_4.png);
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        .box>.readings,
+        .box>.text-middle {
+            opacity: 0;
+            transition: opacity .5s ease-in-out;
+        }
+
+        .opened {
+            width: 450px;
+            background-color: #3b013b;
+            background-size: cover;
+            padding-block: 2rem;
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+        }
+
+        .opened>.text-middle,
+        .opened>.readings {
+            display: flex;
+            opacity: 1;
+        }
+
+        .opened>.readings {
+            margin-top: 2.4rem;
+        }
+
+        .fade {
+            color: #f5f5f5a2;
+        }
+
+        .large {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-transform: capitalize;
+        }
+
+        .readings {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .reading {
+            height: 100px;
+            width: 100px;
+            background-color: #5a57579c;
+            border-radius: 1em;
+            display: flex;
+            flex-flow: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .read {
+            width: 40px;
+        }
+
+        /* Page Loader */
+        .container {
+            position: fixed;
+            inset: 0;
+            background-color: #050000;
+            z-index: 1000;
+            display: grid;
+            place-content: center;
+            transition: opacity .4s ease-in-out, visibility .4s ease-in-out;
+        }
+        .loader{
+            height: 50px; width: 50px;
+            /* background-color: #f5f5f5; */
+            border: 5px solid #ffa500;
+            border-color: purple blue green red;
+            border-radius: 40%;
+            animation: .8s infinite alternate myAnimation;
+        }
+        @keyframes myAnimation{
+            100%{
+                transform: rotate(1turn);
+            }
+        }
+        .container.hidden{
+            opacity: 0;
+            visibility: hidden;
+        }
+        #content{
+            opacity: 0;
+            transform: translate3d(0, -1rem, 0);
+            transition: opacity 0.6s ease-in-out, transform .6s ease-in-out;
+        }
+        #content.visible{
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Simple Page Loader -->
+    <div class="container">
+        <div class="loader"></div>
+    </div>
+    <section id="content">
+        <header class="header">
+            <nav class="nav">
+                <img src="./Assets/weather.png" alt="Logo" class="logo" title="Accordion">
+                <ul class="list">
+                    <li><a href="#">Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#">Trends</a>
+                        <ul>
+                            <li><a href="#monday">Monday</a></li>
+                            <li><a href="#tuesday">Tuesday</a></li>
+                            <li><a href="#wednesday">Wednesday</a></li>
+                            <li><a href="#thursday">Thursday</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#">Contacts</a></li>
+                </ul>
+            </nav>
+        </header>
+        <main class="main">
+            <div class="accordion">
+                <div class="box" id="monday">
+                    <div class="text-up">
+                        <p>Mon</p>
+                        <p>12 Feb</p>
+                    </div>
+                    <div class="text-middle">
+                        <p class="large">Rainy</p>
+                    </div>
+                    <div class="text-down">
+                        <p>25° <span class="fade">19°</span></p>
+                    </div>
+                    <div class="readings">
+                        <div class="reading temp">
+                            <img src="./Assets/thermometer.svg" alt="" class="read">
+                            <small>Temperature</small>
+                        </div>
+                        <div class="reading humidity">
+                            <img src="./Assets/eyedrop.svg" alt="" class="read">
+                            <small>Humidity</small>
+                        </div>
+                        <div class="reading wind">
+                            <img src="./Assets/cloud.svg" alt="" class="read">
+                            <small>Wind Speed</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="box" id="tuesday">
+                    <div class="text-up">
+                        <p>Tue</p>
+                        <p>13 Feb</p>
+                    </div>
+                    <div class="text-middle">
+                        <p class="large">Sunny</p>
+                    </div>
+                    <div class="text-down">
+                        <p>32° <span class="fade">17°</span></p>
+                    </div>
+                    <div class="readings">
+                        <div class="reading temp">
+                            <img src="./Assets/thermometer.svg" alt="" class="read">
+                            <small>Temperature</small>
+                        </div>
+                        <div class="reading humidity">
+                            <img src="./Assets/eyedrop.svg" alt="" class="read">
+                            <small>Humidity</small>
+                        </div>
+                        <div class="reading wind">
+                            <img src="./Assets/cloud.svg" alt="" class="read">
+                            <small>Wind Speed</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="box" id="wednesday">
+                    <div class="text-up">
+                        <p>Wed</p>
+                        <p>14 Feb</p>
+                    </div>
+                    <div class="text-middle">
+                        <p class="large">Windy</p>
+                    </div>
+                    <div class="text-down">
+                        <p>27° <span class="fade">20°</span></p>
+                    </div>
+                    <div class="readings">
+                        <div class="reading temp">
+                            <img src="./Assets/thermometer.svg" alt="" class="read">
+                            <small>Temperature</small>
+                        </div>
+                        <div class="reading humidity">
+                            <img src="./Assets/eyedrop.svg" alt="" class="read">
+                            <small>Humidity</small>
+                        </div>
+                        <div class="reading wind">
+                            <img src="./Assets/cloud.svg" alt="" class="read">
+                            <small>Wind Speed</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="box" id="thursday">
+                    <div class="text-up">
+                        <p>Thur</p>
+                        <p>15 Feb</p>
+                    </div>
+                    <div class="text-middle">
+                        <p class="large">Cloudy</p>
+                    </div>
+                    <div class="text-down">
+                        <p>23° <span class="fade">15°</span></p>
+                    </div>
+                    <div class="readings">
+                        <div class="reading temp">
+                            <img src="./Assets/thermometer.svg" alt="" class="read">
+                            <small>Temperature</small>
+                        </div>
+                        <div class="reading humidity">
+                            <img src="./Assets/eyedrop.svg" alt="" class="read">
+                            <small>Humidity</small>
+                        </div>
+                        <div class="reading wind">
+                            <img src="./Assets/cloud.svg" alt="" class="read">
+                            <small>Eind Speed</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <script src="jquery-3.7.1.min.js"></script>
+    <script>
+        const loaderContainer = document.querySelector('.container');
+        const pageContent = document.querySelector('#content');
+
+        window.addEventListener('load', () => {
+            loaderContainer.classList.add('hidden');
+            pageContent.classList.add('visible');
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $(".box").click(function () {
+                $(".box").removeClass('opened');
+                $(this).addClass('opened');
+            });
+        });
+    </script>
+</body>
+
+</html>

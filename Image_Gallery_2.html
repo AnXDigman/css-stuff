@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./Assets/AssetLibrary.ico" type="x-icon">
+    <title>Image Gallery 2</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            appearance: 0;
+        }
+        html{
+            font: 1.5rem "Agency FB Regular", sans-serif;
+            scroll-behavior: smooth;
+        }
+        body{
+            min-height: 100vh;
+            background-color: #c4d1dd;
+            position: relative;
+        }
+        ul{
+            list-style: none;
+        }
+        a{
+            color: #f5f5f5;
+            text-decoration: none;
+        }
+        img{
+            display: block;
+        }
+        header{
+            position: sticky;
+            top: 0;
+            height: 15vh;
+            background-color: #333;
+            box-shadow: 0 12px 10px -5px #333;
+            z-index: 2;
+        }
+        header > .nav-bar{
+            padding: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header > .nav-bar > ul{
+            margin-right: 10rem;
+            display: flex;
+            gap: 3rem;
+        }
+        header > .nav-bar > ul > li > a:any-link{
+            font-size: 1.6rem;
+            padding: 0.5rem;
+            border: 0;
+            border-radius: .2em;
+            transition: background-color 0.3s ease-in-out;
+        }
+        header > .nav-bar > ul > li > a:hover{
+            background-color: #5c81e4;
+        }
+        header > .nav-bar > ul > li > a:active{
+            background-color: #bb530eb6;
+        }
+        header > .nav-bar > .logo{
+            text-align: center;
+            width: 300px;
+            letter-spacing: -.02em;
+            border: 4px solid #0daa61;
+            border-radius: .1em;
+            padding: 0.5rem;
+            background-color: #5c81e4 ;
+            color: #b90c0c;
+            animation: animate 3s linear infinite;
+        }
+        @keyframes animate {
+            0%{
+                transform:scale(0.9) translateX(0);
+            }
+            50%{
+                transform:scale(1.02) translateX(-5px);
+            }
+            100%{
+                transform:scale(0.9) translateX(0);
+            }
+        }
+        .main{
+            margin: 2rem auto;
+        }
+        .main > .large{
+            text-shadow: 5px 0 5px #333;
+            font-size: 2.5rem;
+            padding: 1rem;
+        }
+        .main > .images{
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            margin: 2rem 0;
+            padding: 1rem;
+        }
+        .main > .images > li{
+            margin: 1.4rem 0;
+        }
+        .main > .images > li > .figure{
+            width: 350px;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            border-radius: .5em;
+            cursor: pointer;
+        }
+        .main > .images > li > .figure > .caption{
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-flow: column;
+            padding: 0.5rem;
+            width: 14rem;
+            color: #e2dcdc;
+            transform: translate3D(0, 400px, 0);
+            transition: opacity .4s ease-in-out,
+                        transform 0.5s ease-in-out;
+        }
+        .main > .images > li > .figure > .caption{
+            z-index: 1;
+            display: none;
+        }
+        .main > .images > li > .figure > .caption{
+            display: block;
+            opacity: 0;
+        }
+        .main > .images > li > .figure:hover .caption{
+            opacity: 1;
+            transform: translate3D(0, 0, 0);
+        }
+        .main > .images > li > .figure > .caption::before{
+            content: '';
+            position: absolute;
+            width: 350px;
+            border-radius: .5em;
+            inset: 0;
+            background-color: #11111144;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+        .main > .images > li > .figure:hover .caption::before{
+            opacity: 1;
+        }
+        .main > .images > li > .figure > .caption > main{
+            display: flex;
+            flex-flow: column;
+            gap: 1rem;
+        }
+        .main > .images > li > .figure > .image{
+            scroll-margin-top: 6rem;
+            width: 350px;
+            height: 400px;
+            object-fit: cover;
+            border-radius: .5em;
+            cursor: pointer;
+            transform: scale(1.1);
+            transition: transform 0.4s ease-in-out;
+        }
+        .main > .images > li > .figure:hover .image{
+            transform: scale(1);
+        }
+        .main > .images > li > .figure > .caption > .footer{
+            margin: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 75px;
+            background-color: #5f6061;
+            padding: 1rem;
+            border-radius:2em;
+            color: #f5f5f5;
+            cursor: pointer;
+            transition: background-color .5s ease-in-out;
+        }
+        .main > .images > li > .figure > .caption > .footer:hover{
+            background-color: #000000;
+        } 
+        .main > .images > li > .figure > .caption > .footer > .arrow{
+            width: 60px;
+            padding: 0.5rem;
+            background-color: #5c81e4;
+            border-radius: 2em;
+            transform: translateX(-10px);
+            transition: transform .6s ease-in-out;
+        }
+        .main > .images > li > .figure > .caption > .footer:hover .arrow{
+            transform: translateX(5px) rotate(360deg);
+        }
+        .top{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        .top > a{
+            color: #5c81e4;
+        }
+        .page-footer{
+            position: sticky;
+            bottom: 0;
+            height: 50px;
+            background-color: #333;
+            color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <nav class="nav-bar">
+            <h1 class="logo">pHotO STorE</h1>
+            <ul>
+                <li><a href="#girlie">Girlie</a></li>
+                <li><a href="#ai_bot">AI Bot</a></li>
+                <li><a href="#jack">Jack</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main class="main">
+        <h1 class="large">EXPERIENCE THE BEST STORE FOR AWESOME PHOTOS.</h1>
+        <ul class="images">
+            <li>
+                <figure class="figure">
+                    <img src="./Assets/pic-7j.png" alt="Girlie" id="girlie" class="image">
+                    <figcaption class="caption">
+                        <main>
+                            <h2 class="name">Girlie</h2>
+                            <p>
+                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed quae asperiores ex sunt labore distinctio
+                                odit eius aspernatur quis. Omnis eos cupiditate ipsa odit quia vero numquam modi repellat beatae!
+                            </p>
+                        </main>
+                        <footer class="footer">
+                            <small class="small">girlie@gmail.com</small>
+                            <img src="./Assets/arrow-forward.svg" alt="Arrow" class="arrow">
+                        </footer>
+                    </figcaption>
+                </figure>
+            </li>
+            <li>
+                <figure class="figure">
+                    <img src="./Assets/ai_1.png" alt="AI Bot" id="ai_bot" class="image">
+                    <figcaption class="caption">
+                        <main>
+                            <h2 class="name">AI Bot</h2>
+                            <p>
+                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed quae asperiores ex sunt labore distinctio
+                                odit eius aspernatur quis. Omnis eos cupiditate ipsa odit quia vero numquam modi repellat beatae!
+                            </p>
+                        </main>
+                        <footer class="footer">
+                            <small class="small">aibot@gmail.com</small>
+                            <img src="./Assets/arrow-forward.svg" alt="Arrow" class="arrow">
+                        </footer>
+                    </figcaption>
+                </figure>
+            </li>
+            <li>
+                <figure class="figure">
+                    <img src="./Assets/pic-2.png" alt="Jack" id="jack" class="image">
+                    <figcaption class="caption">
+                        <main>
+                            <h2 class="name">Jack</h2>
+                            <p>
+                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed quae asperiores ex sunt labore distinctio
+                                odit eius aspernatur quis. Omnis eos cupiditate ipsa odit quia vero numquam modi repellat beatae!
+                            </p>
+                        </main>
+                        <footer class="footer">
+                            <small class="small">jack@gmail.com</small>
+                            <img src="./Assets/arrow-forward.svg" alt="Arrow" class="arrow">
+                        </footer>
+                    </figcaption>
+                </figure>
+            </li>
+        </ul>
+    </main>
+    <div class="top">
+        <a href="#">Back to top</a>
+    </div>
+    <footer class="page-footer">
+        <p>&copy;All Rights Reserved.</p>
+    </footer>
+</body>
+</html>

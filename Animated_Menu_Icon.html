@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./Assets/AssetLibrary.ico" type="x-icon">
+    <title>Animated Menu Icon</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html{
+            font: 1.5rem "Poiret One", sans-serif;
+            scroll-behavior: smooth;
+        }
+        ::-webkit-scrollbar{
+            width: 15px;
+        }
+        ::-webkit-scrollbar-track{
+            border-top-right-radius: .5em;
+            border-bottom-right-radius: .5em;
+            /* margin-block: .5em; */
+            background-color: #333;
+        }
+        ::-webkit-scrollbar-thumb{
+            background-color: orangered;
+            border: 3px solid #333;
+            border-radius: 2em;
+        }
+        ::-webkit-scrollbar-thumb:hover{
+            background-color: rgba(255, 68, 0, 0.726);
+        }
+        body{
+            min-height: 100vh;
+            background-color: aliceblue;
+        }
+        ul{
+            list-style: none;
+        }
+        .nav{
+            background-color: aliceblue;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 120px;
+            padding: 0 1rem;
+            box-shadow: 0 10px 15px -15px #333;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        #menu-container{
+            position: absolute;
+            top: -18rem;
+            left: 4rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .4s ease-in-out, 
+                        visibility .4s ease-in-out,
+                        top .4s ease-in-out;
+        }
+        :root[menu-open] #menu-container{
+            top: 1rem;
+            opacity: 1;
+            visibility: visible;
+        }
+        #menu-container > ul{
+            font-family: Gladifilthefte;
+            padding: 1rem;
+            min-height: 16rem;
+            width: 10rem;
+            border: 1px solid #333;
+            border-radius: .5em;
+            background-color: #060131;
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 1rem;
+        }
+        #menu-container > ul > li{
+            cursor: pointer;
+            width: 100%;
+            padding: .5rem;
+            border-radius: 2em;
+            background-color: orange;
+            transform: translate3d(0, 0, 0);
+            transition: transform .3s ease-in-out, 
+                        background-color .3s ease-in-out;
+        }
+        #menu-container > ul > li:hover{
+            transform: translate3d(.5rem, 0, 0) scale(1.07);
+            background-color: rgb(255, 198, 93);
+        }
+        .logo-text{
+            height: 100px; width: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* background-color: aquamarine; */
+        }
+        svg{
+            width: 200px;
+            font-size: 10rem;
+            font-family: "CocoBikeR";
+        }
+        .text{
+            fill: orangered;
+            stroke: #000;
+            stroke-width: 13;
+        }
+        .text:nth-child(2){
+            font-size: 14rem;
+            transform: rotate(10deg);
+        }
+        .social-media{
+            display: flex;
+            gap: 2rem;
+        }
+        .social-media > a{
+            transform: translate3d(0, 0, 0);
+            transition: .2s ease-in-out;
+        }
+        .social-media > a:hover{
+            transform: translate3d(0, -.1rem, 0);
+        }
+        .social-media > a:active{
+            transform: scale(.8);
+        }
+        .image{
+            width: 50px;
+            cursor: pointer;
+        }
+        .main{
+            padding: 1rem;
+            color: #f5f5f5;
+            height: 50vh;
+            /* margin-top: 1rem; */
+            background-color: rgb(60, 190, 147);
+            position: relative;
+            z-index: 1;
+        }
+        .main::before{
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-color: #0000009c;
+            z-index: -1;
+        }
+        .video{
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -2;
+            object-fit: cover;
+        }
+        .main > h1{
+            color: orangered;
+            font-family: Magneto;
+            font-size: 3rem;
+            font-weight: 900;
+        }
+        .pad{
+            width: 100px;
+            position: absolute;
+            bottom: -2.5rem;
+            animation: 3s infinite linear rotatePad;
+        }
+        @keyframes rotatePad {
+            0%{
+                transform: rotate(0);
+            }
+            33%{
+                transform: rotate(-20deg);
+            }
+            66%{
+                transform: rotate(20deg);
+            }
+            100%{
+                transform: rotate(0);
+            }
+        }
+        .gadgets{
+            min-height: 40vh;
+            background-color: orangered;
+        }
+        .gadget-container{
+            color: #f5f5f5;
+            padding: 3rem 1rem;
+        }
+        .container{
+            scroll-margin-top: 6rem;
+            margin-top: 2rem;
+            height: 400px;
+            border-bottom: 2px solid #333;
+            background-color: rgb(250, 118, 69);
+            padding: 1rem;
+            border-radius: .5em;
+        }
+        .container > p{
+            padding: 1rem 0;
+        }
+        .heading{
+            height: 100px; width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: .5rem;
+            border: 3px solid #333;
+            border-top: 0;
+            border-left: 0;
+            border-radius: 1em;
+        }
+        .footer{
+            height: 25%; width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #333;
+            padding: 1rem;
+            border-radius: 2em;
+            margin-top: 1rem;
+            cursor: pointer;
+            transition: background-color .3s ease-in;
+        }
+        .footer:hover{
+            background-color: #000;
+        }
+        .fade > a{
+            color: #fff;
+        }
+        .fade{
+            white-space: nowrap;
+            color: #76ec15;
+        }
+        .play,
+        .footer-img{
+            width: 50px;
+        }
+        .footer-img{
+            width: 60px;
+        }
+        .footer-img{
+            padding: .5rem;
+            background-color: orangered;
+            border-radius: 50%;
+            transform: scale(1) translate3d(-20px, 0, 0);
+            opacity: 0.3;
+            transition: opacity .5s ease-in-out,
+                        transform .5s ease-in-out;
+        }
+        .footer:hover .footer-img{
+            opacity: 1;
+            transform: scale(1.1) translate3d(0, 0, 0);
+        }
+        .back{
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: orangered;
+        }
+        .back > a{
+            color: #fff;
+        }
+        .back > img{
+            width: 30px;
+        }
+        .page-footer{
+            background-color: #f5f5f5;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bolder;
+            position: sticky;
+            bottom: 0;
+            z-index: 3;
+        }
+        /* Menu */
+        #menu-button{
+            display: flex;
+            flex-flow: column nowrap;
+            gap: .4rem;
+            width: 2rem;
+            height: 2rem;
+            align-items: center;
+            border: none;
+            background-color: transparent;
+            justify-content: center;
+            cursor: pointer;
+            /* outline: none; */
+        }
+        #menu-button > span{
+            background-color: #000;
+            height: 5px;
+            width: 100%;
+            border-radius: 2em;
+            transition: transform .3s ease-in-out,
+                        opacity .3s ease-in-out,
+                        background-color .5s ease-in-out;
+        }
+        :root[menu-open] #menu-button > span:nth-child(1){
+            transform: translate3d(0, .6rem, 0) rotate(45deg);
+        }
+        :root[menu-open] #menu-button > span:nth-child(2){
+            transform: scaleX(0);
+            opacity: 0;
+        }
+        :root[menu-open] #menu-button > span:nth-child(3){
+            transform: translate3d(0, -.6rem, 0) rotate(-45deg);
+        }
+        :root[menu-open] #menu-button > span{
+            background-color: orangered;
+        }
+    </style>
+</head>
+
+<body>
+
+    <section id="content">
+        <nav class="nav">
+            <div class="menu">
+                <button class="button" id="menu-button">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+            <div id="menu-container">
+                <ul>
+                    <li>Home</li>
+                    <li>MarketPlace</li>
+                    <li>Cart</li>
+                    <li>Contact</li>
+                </ul>
+            </div>
+            <div class="logo-text">
+                <svg id="logo" viewBox="0 0 1000 600">
+                    <text x="10%" y="50%" dy="2rem" class="text">
+                        Gamer
+                    </text>
+                    <text x="50%" y="50%" dx="11rem" dy="-2rem" class="text">
+                        Z
+                    </text>
+                </svg>
+            </div>
+            <div class="social-media">
+                <a href="#playstation"><img src="./Assets/logo-playstation.svg" alt="" class="image"></a>
+                <a href="#xbox"><img src="./Assets/logo-xbox.svg" alt="" class="image"></a>
+                <a href="#steam"><img src="./Assets/logo-steam.svg" alt="" class="image"></a>
+            </div>
+        </nav>
+        <section class="main">
+            <h1>Get Ultimate Gaming Experience</h1>
+            <video autoplay muted loop class="video">
+                <source src="./Assets/ULTIMATE Gaming PC Build - NZXT Player Three Prime.webm">
+            </video>
+            <img src="./Assets/game-controller.svg" alt="Pad" class="pad">
+        </section>
+        <section class="gadgets">
+            <div class="gadget-container">
+                <div class="container playstation" id="playstation">
+                    <div class="heading">
+                        <img src="./Assets/logo-playstation.svg" alt="" class="play">
+                        <h3>Playstation</h3>
+                    </div>
+                    <p>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque nisi laborum quasi natus nobis nostrum tempore voluptatem a, ipsam perspiciatis omnis id adipisci alias, quae reiciendis quod eveniet minima repudiandae.
+                    </p>
+                    <footer class="footer">
+                        <p>Pricing: <span class="fade">Ksh.65,097</span></p>
+                        <img src="./Assets/chevron-forward.svg" alt="" class="footer-img">
+                    </footer>
+                </div>
+                <div class="container playstation" id="xbox">
+                    <div class="heading">
+                        <img src="./Assets/logo-xbox.svg" alt="" class="play">
+                        <h3>X-box</h3>
+                    </div>
+                    <p>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque nisi laborum quasi natus nobis nostrum tempore voluptatem a, ipsam perspiciatis omnis id adipisci alias, quae reiciendis quod eveniet minima repudiandae.
+                    </p>
+                    <footer class="footer">
+                        <p>Pricing: <span class="fade">Ksh.110,052</span></p>
+                        <img src="./Assets/chevron-forward.svg" alt="" class="footer-img">
+                    </footer>
+                </div>
+                <div class="container playstation" id="steam">
+                    <div class="heading">
+                        <img src="./Assets/logo-steam.svg" alt="" class="play">
+                        <h3>Steam</h3>
+                    </div>
+                    <p>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque nisi laborum quasi natus nobis nostrum tempore voluptatem a, ipsam perspiciatis omnis id adipisci alias, quae reiciendis quod eveniet minima repudiandae.
+                    </p>
+                    <footer class="footer">
+                        <p>Join Now: <span class="fade"><a href="#">www.steam.com</a></span></p>
+                        <img src="./Assets/chevron-forward.svg" alt="" class="footer-img">
+                    </footer>
+                </div>
+            </div>
+        </section>
+        <div class="back">
+            <a href="#">Back To Top</a>
+            <img src="./Assets/arrow-up.svg" alt="">
+        </div>
+        <footer class="page-footer">
+            <p>&copy;All Rights reserved.</p>
+        </footer>
+    </section>
+    <script>
+        const menuButton = document.querySelector('#menu-button');
+        const rootElement = document.documentElement;
+
+        menuButton.addEventListener('click', () => {
+            rootElement.toggleAttribute('menu-open');
+        })
+    </script>
+</body>
+
+</html>

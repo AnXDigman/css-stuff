@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./Assets/AssetLibrary.ico" type="x-icon"/>
+    <title>Image Gallery</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            appearance: 0;
+            box-sizing: border-box;
+        }
+        html{
+            font: 1.5rem "Nunito", sans-serif;
+            scroll-behavior: smooth;
+        }
+        body{
+            min-height: 100vh;
+            background-color: #7a7878;
+            position: relative;
+        }
+        ::-webkit-scrollbar{
+            width: 15px;
+        }
+        ::-webkit-scrollbar-track{
+            margin-block: .1em;
+            border-radius: .5em ;
+            background-color: #393947;
+        }
+        ::-webkit-scrollbar-thumb{
+            background-color: #ad14db;
+            border: 2px solid #393947;
+            border-radius: .5em;
+        }
+        ::-webkit-scrollbar-thumb:hover{
+            background-color: #ad14db9a;
+        }
+        img{
+            display: block;
+        }
+        button{
+            font: inherit;
+        }
+        ul{
+            list-style: none;
+        }
+        a{
+            text-decoration: none;
+        }
+        .hero{
+            min-height: 10vh;
+            width: 100%;
+            padding: 1.2rem;
+            background-color: #444242;
+            color: #f5f5f5;
+            position: sticky;
+            top: 0;
+            box-shadow: 0 18px 10px -10px #333;
+            z-index: 1;
+        }
+        .hero > .nav_bar{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hero > .nav_bar > .list{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3rem;
+        }
+        .hero > .nav_bar > .list > li{
+            transition: transform 0.3s ease-in-out;
+        }
+        .hero > .nav_bar > .list > li:hover:not(.hero > .nav_bar > .list > .has_sub-menu > ul > li){
+            transform: translateY(-2px);
+        }
+        .hero > .nav_bar > .list > li > a{
+            color: #f5f5f5;
+            padding: .2rem .5rem;
+            border: 0;
+            border-radius: 1em;
+            transition: background-color, font-style .2s ease-in-out;
+        }
+        .hero > .nav_bar > .list > li > a:hover,
+        .hero > .nav_bar > .list > li > a:focus{
+            background-color: #e22ebba9;
+            /* border: 2px solid #333; */
+            /* font-style: oblique; */
+        }
+        .hero > .nav_bar > .list > .has_sub-menu{
+            position: relative;
+        }
+        .hero > .nav_bar > .list > .has_sub-menu::after{
+            content: url(./Assets/chevron-down-outline.svg);
+            position: absolute;
+            display: inline-block;
+            top: 0.15rem;
+            opacity: 0.3;
+            transition: transform 0.5s ease-in-out, 
+                        opacity 0.3s ease-in-out;
+        }
+        .hero > .nav_bar > .list > .has_sub-menu:hover::after{
+            opacity: 1;
+            transform: translateX(3px) rotate(360deg);
+        }
+        .hero > .nav_bar > .list > .has_sub-menu > ul{
+            position: absolute;
+            top: 100%;
+            left: -2rem;
+            background-color: #6b6868a6;
+            border-radius: .5em;
+            padding: 1rem;
+            display: none;
+        }
+        .hero > .nav_bar > .list > .has_sub-menu > ul{
+            display: block;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(0);
+            transition: all 0.3s ease-in-out;
+        }
+        .hero > .nav_bar > .list > .has_sub-menu:hover ul{
+            display: block;
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-10px);
+        }
+        .hero > .nav_bar > .list > .has_sub-menu > ul > li > a{
+            color: #f5f5f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0.8rem;
+            min-width: 13rem;
+            border-radius: 2em;
+            transition: background-color .2s ease-in-out, 
+                        transform .2s ease-in-out;
+        }
+        .hero > .nav_bar > .list > .has_sub-menu > ul > li > a:hover{
+            background-color: #444242;
+            transform: scale(1.1) translateX(-2px);
+        }
+        .hero > .nav_bar > .list > .has_sub-menu > ul > li > a:hover::after{
+            content: '→';
+            position: absolute;
+            right: 1rem;
+            opacity: 1 ;
+        }
+        /* Main */
+        .main{
+            padding: 1rem;
+            font-family: "Agency FB Regular";
+        }
+        .main > .main_h4{
+            color: #09095f;
+        }
+        .main > .main_h4 > .h4_photo{
+            width: 40px;
+            display: inline-block;
+            position: absolute;
+            top: 5rem;
+            left: 6.5rem;
+            animation: animate_photo 4s linear infinite;
+        }
+        @keyframes animate_photo{
+            0%{
+                transform: rotate(0);
+            }
+            50%{
+                transform: rotate(-45deg);
+            }
+            100%{
+                transform: rotate(0);
+            }
+        }
+        .main > .main_h1{
+            font-variant: small-caps;
+            font-weight: bolder;
+            letter-spacing: .1em;
+        }
+        .main > .images{
+            min-height: 60vh;
+            border-radius:.2em ;
+            margin: 3rem auto;
+            padding: 1rem;
+            display: flex;
+            flex-flow: column nowrap;
+            gap: 3rem;
+            position: relative;
+        }
+        .main > .images::before{
+            content: '';
+            position: absolute;
+            top: -1rem;
+            left: calc(50% - (500px/2));
+            width: 500px;
+            height: 5px;
+            border-radius: .3em;
+            background-color: rgb(50, 3, 61);
+        }
+        .main > .images > .figure > .photo{
+            scroll-margin-top: 6.4rem;
+            width: 350px;
+            height: 450px;
+            border-radius: .3em;
+            object-fit: cover;
+            transition: transform 0.5s ease-in-out,
+                        box-shadow 0.5s ease-in-out;
+        }
+        .main > .images > .figure:nth-child(1){
+            margin-left: 30rem;
+        }
+        .main > .images > .figure:nth-child(2){
+            margin-left: 2rem;
+        }
+        .main > .images > .figure:nth-child(3){
+            margin-left: 31rem;
+        }
+        .main > .images > .figure:nth-child(4){
+            margin-left: 3rem;
+        }
+        .main > .images > .figure:nth-child(5){
+            margin-left: 29rem;
+        }
+        .main > .images > .figure:nth-child(6){
+            margin-left: 3.5rem;
+        }
+        .main > .images > .figure > .photo:hover,
+        .main > .images > .figure > .photo:focus{
+            box-shadow: 0 15px 10px -10px #333;
+            transform: scale(1.05) translateX(-20px);
+        }
+        .main > .images > .figure > figcaption{
+            border: 1px solid #333;
+            border-radius: .2em;
+            margin: 1rem 0;
+            padding: 1rem;
+            width: 20rem;
+        }
+        .main > .images > .figure > figcaption:first-child{
+            left: 10rem;
+        }
+        .main > .images > .figure > figcaption > h2{
+            padding: 1rem 0;
+        }
+        .main > .images > .figure > figcaption > footer{
+            margin: 1rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            background-color: #606066;
+            padding: 1rem;
+            border-radius: 2em;
+            transition: transform .3s ease-in-out;
+        }
+        .main > .images > .figure > figcaption > footer:hover{
+            transform: scale(1.02);
+        }
+        .main > .images > .figure > figcaption > footer > p > .nowrap{
+            color: #690707e7;
+            white-space: nowrap;
+        }
+        .main > .images > .figure > figcaption > footer > .visit{
+            width: 50px;
+            cursor: pointer;
+            padding: 0.2rem;
+            background-color: #f5f5;
+            border-radius: 2em;
+            transition: transform, 0.5s ease-in-out,
+                        opacity 0.5s ease-in-out;
+            display: none;
+        }
+        .main > .images > .figure > figcaption > footer > .visit{
+            display: block;
+            opacity: 0.5;
+            transform: translateX(-25px);
+        }
+        .main > .images > .figure > figcaption > footer:hover .visit{
+            transform: translateX(10px) rotate(-360deg);
+            display: block;
+            opacity: 1;
+        }
+
+        /* Page Loader */
+
+        .container {
+            position: fixed;
+            inset: 0;
+            background-color: #050000;
+            z-index: 1000;
+            display: grid;
+            place-content: center;
+            transition: opacity .4s ease-in-out, visibility .4s ease-in-out;
+        }
+        .loader{
+            height: 50px; width: 50px;
+            /* background-color: #f5f5f5; */
+            border: 5px solid #ffa500;
+            border-color: purple blue green red;
+            border-radius: 50%;
+            animation: .8s infinite alternate myAnimation;
+        }
+        .container.hidden{
+            opacity: 0;
+            visibility: hidden;
+        }
+        #content{
+            opacity: 0;
+            transform: translate3d(0, -1rem, 0);
+            transition: opacity 0.6s ease-in-out, transform .6s ease-in-out;
+        }
+        #content.visible{
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+        @keyframes myAnimation{
+            100%{
+                transform: rotate(1turn);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="loader"></div>
+</div>
+<section id="content">
+    <section class="hero">
+
+        <nav class="nav_bar">
+            <img src="./Assets/clever-get.png" alt="logo" class="logo">
+            <ul class="list">
+                <li><a href="#">Home</a></li>
+                <li class="has_sub-menu">
+                    <a href="#">Selection</a>
+                    <ul>
+                        <li><a href="#rodolfo">Rodolfo</a></li>
+                        <li><a href="#nicole">Nicole</a></li>
+                        <li><a href="#eberhard">Eberhard</a></li>
+                        <li><a href="#james">James</a></li>
+                        <li><a href="#david">David</a></li>
+                        <li><a href="#marlon">Marlon</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">Services</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+    </section>
+    <main class="main">
+        <h4 class="main_h4">
+            Get Your Photo
+            <img src="./Assets/photo.svg" alt="photo" class="h4_photo">
+        </h4>
+        <h1 class="main_h1">Image Gallery</h1>
+        <p style="font-family: 'Pristina'; font-weight: bold;">Awesome photos in store just for you.</p>
+        <section class="images" id="images">
+            <figure class="figure">
+                <img src="./Assets/pexels-rodolfo-quirós-1727273.jpg" alt="rodolfo" class="photo" id="rodolfo" height="6000"
+                    width="4000">
+                <figcaption>
+                    <h2>Rodolfo Quiròs</h2>
+                    <p>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Dicta quo dolorem possimus ipsum officiis
+                        commodi illo impedit eum sunt deserunt libero quia cumque facilis provident, quos tempora! Ipsam,
+                        dolorem perspiciatis.
+                    </p>
+                    <footer>
+                        <p>From <span class="nowrap">300Yen</span></p>
+                        <img src="./Assets/arrow-forward.svg" alt="Visit" class="visit">
+                    </footer>
+                </figcaption>
+            </figure>
+            <figure class="figure">
+                <img src="./Assets/pexels-nicole-berro-1994818.jpg" alt="nicole" class="photo" id="nicole" height="2977"
+                    width="2322">
+                <figcaption>
+                    <h2>Nicole Berro</h2>
+                    <p>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Dicta quo dolorem possimus ipsum officiis
+                        commodi illo
+                        impedit eum sunt deserunt libero quia cumque facilis provident, quos tempora! Ipsam, dolorem
+                        perspiciatis.
+                    </p>
+                    <footer>
+                        <p>From <span class="nowrap">Ksh.400</span></p>
+                        <img src="./Assets/arrow-forward.svg" alt="Visit" class="visit">
+                    </footer>
+                </figcaption>
+            </figure>
+            <figure class="figure">
+                <img src="./Assets/pexels-eberhard-grossgasteiger-1366919.jpg" alt="eberhard" class="photo" id="eberhard"
+                    height="3000" width="2000">
+                <figcaption>
+                    <h2>Eberhard Grossgasteiger</h2>
+                    <p>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Dicta quo dolorem possimus ipsum officiis
+                        commodi illo
+                        impedit eum sunt deserunt libero quia cumque facilis provident, quos tempora! Ipsam, dolorem
+                        perspiciatis.
+                    </p>
+                    <footer>
+                        <p>From <span class="nowrap">$67</span></p>
+                        <img src="./Assets/arrow-forward.svg" alt="Visit" class="visit">
+                    </footer>
+                </figcaption>
+            </figure>
+            <figure class="figure">
+                <img src="./Assets/pexels-james-wheeler-1486974.jpg" alt="james" class="photo" height="5427" id="james"
+                    width="3834">
+                <figcaption>
+                    <h2>James Wheeler</h2>
+                    <p>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Dicta quo dolorem possimus ipsum officiis
+                        commodi illo
+                        impedit eum sunt deserunt libero quia cumque facilis provident, quos tempora! Ipsam, dolorem
+                        perspiciatis.
+                    </p>
+                    <footer>
+                        <p>From <span class="nowrap">£34</span></p>
+                        <img src="./Assets/arrow-forward.svg" alt="Visit" class="visit">
+                    </footer>
+                </figcaption>
+            </figure>
+            <figure class="figure">
+                <img src="./Assets/pexels-david-bartus-1166209.jpg" alt="david" class="photo" height="3731" id="david"
+                    width="5707">
+                <figcaption>
+                    <h2>David Bartus</h2>
+                    <p>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Dicta quo dolorem possimus ipsum officiis
+                        commodi illo
+                        impedit eum sunt deserunt libero quia cumque facilis provident, quos tempora! Ipsam, dolorem
+                        perspiciatis.
+                    </p>
+                    <footer>
+                        <p>From <span class="nowrap">$56</span></p>
+                        <img src="./Assets/arrow-forward.svg" alt="Visit" class="visit">
+                    </footer>
+                </figcaption>
+            </figure>
+            <figure class="figure">
+                <img src="./Assets/pexels-marlon-martinez-1450082.jpg" alt="marlon" class="photo" id="marlon" height="5304"
+                    width="4244">
+                <figcaption>
+                    <h2>Marlon Martinez</h2>
+                    <p>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Dicta quo dolorem possimus ipsum officiis
+                        commodi illo
+                        impedit eum sunt deserunt libero quia cumque facilis provident, quos tempora! Ipsam, dolorem
+                        perspiciatis.
+                    </p>
+                    <footer>
+                        <p>From <span class="nowrap">263Yen</span></p>
+                        <img src="./Assets/arrow-forward.svg" alt="Visit" class="visit">
+                    </footer>
+                </figcaption>
+            </figure>
+        </section>
+    </main>
+</section>
+    
+<script>
+    const container = document.querySelector('.container');
+    const content = document.querySelector('#content');
+
+    window.addEventListener('load', () =>{
+        container.classList.add('hidden');
+        content.classList.add('visible');
+    });
+</script>
+</body>
+</html>
